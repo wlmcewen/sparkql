@@ -2,8 +2,7 @@ class Sparkql::Lexer < StringScanner
   include Sparkql::Token
 
   def initialize(str)
-    str.freeze
-    super(str, false) # DO NOT dup str
+    super(str.freeze, false)
     @level = 0
     @block_group_identifier = 0
     @expression_count = 0
@@ -14,6 +13,7 @@ class Sparkql::Lexer < StringScanner
   # TODO the old implementation did value type detection conversion at a later date, we can perform
   # this at parse time if we want!!!!
   def shift
+    # TODO standardize the token value to always return a hash
     token = case
       when value = scan(SPACE)
         [:SPACE, value]
@@ -50,7 +50,6 @@ class Sparkql::Lexer < StringScanner
       else
         [:UNKNOWN, "ERROR: '#{self.string}'"]
     end
-    #value.freeze
     token.freeze
   end
   
@@ -99,6 +98,7 @@ class Sparkql::Lexer < StringScanner
     @level -= 1
   end
   
+  # TODO standardize the token value to always return a hash as per this function
   def literal(symbol, value)
     node = {
       :type => symbol.to_s.downcase.to_sym,
